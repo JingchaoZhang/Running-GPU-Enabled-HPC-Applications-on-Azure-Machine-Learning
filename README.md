@@ -102,7 +102,11 @@ print(f"Environment information: {registered_env}")
 ```
 
 # NCCL AllReduce BW Test
+The NCCL AllReduce test is a critical benchmark for assessing the communication performance of GPUs across nodes in a distributed computing environment. This test is particularly important for HPC applications as it provides insights into the efficiency and scalability of GPU interconnectivity, which is crucial for parallel processing tasks. We'll begin by submitting a job to run the NCCL AllReduce test on our previously configured AML environment and compute cluster, and then we will analyze the results to evaluate the performance.
+
 ## Submit NCCL AllReduce Job
+To execute the NCCL AllReduce Bandwidth Test, we first need to submit a job to our Azure ML compute cluster. The Python code shown here is designed to accomplish this task. It uses the Azure AI ML SDK to define and submit a command job. This job runs a bash script (NCCL.sh) located in the specified source directory. The script is responsible for initiating the NCCL AllReduce test. The job configuration includes details such as the compute target (the name of our AML compute cluster), the environment (our custom NCCL benchmark environment), and the distribution setting, which is set to use MPI for parallel processing across multiple instances. Additionally, services like JupyterLab are configured for interactive job monitoring and analysis.
+
 ```python
 import os
 from azure.identity import DefaultAzureCredential
@@ -143,6 +147,7 @@ ml_client.jobs.stream(returned_job.name)
 ```
 
 ## NCCL AllReduce Result
+After submitting the NCCL AllReduce test job, we obtain a series of results that provide insights into the bandwidth and communication performance of the GPUs. The output shown below has the optimal performance of around 188 GB/s between two `Standard_ND96asr_v4` nodes.
 ```bash
 #                                                              out-of-place                       in-place          
 #       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
