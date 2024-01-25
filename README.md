@@ -1,1 +1,185 @@
 # Running-GPU-Enabled-HPC-Applications-on-Azure-Machine-Learning
+Azure Machine Learning (AML) is a cloud-based service primarily designed for machine learning applications. However, its versatile architecture also enables the deployment and execution of High-Performance Computing (HPC) applications. In this blog, we will explore AML's capabilities in running HPC applications, focusing on a setup involving two Standard_ND96asr_v4 SKU instances. This configuration harnesses the power of 16 NVIDIA A100 40G GPUs, providing a robust platform for demanding computational tasks. Our demonstration aims to showcase the effective utilization of AML not just for machine learning but also as a potent tool for running sophisticated HPC applications.
+
+We will start with building an A100 GPU-based compute cluster within the AML environment. ollowing the cluster creation, we will proceed to configure the AML Environments, tailoring them specifically for running two key applications: the NCCL (NVIDIA Collective Communications Library) AllReduce Benchmark and the Large-scale Atomic/Molecular Massively Parallel Simulator (LAMMPS). These applications will be executed across all 16 GPUs distributed over the two nodes. This exercise illustrats how to deploy and manage HPC applications using Azure Machine Learning. This approach is a departure from traditional methods typically reliant on SLURM for HPC resource management, highlighting AML's versatility and capability in handling complex HPC tasks.
+
+# Create AML Cluster and Custom Environments
+## Create Resource Group
+```bash
+export RG=${ResourceGroup}
+export location=southcentralus
+export ws_name=${WorkSpace}
+export acr_id="/subscriptions/${SubID}/resourceGroups/${ResourceGroup}/providers/Microsoft.ContainerRegistry/registries/${ACR}"
+
+az group create --name $RG --location $location
+az ml workspace create --name $ws_name --resource-group $RG --location $location --container-registry $acr_id
+```
+
+## Export Env Variables
+```bash
+# Set environment variables for Python script
+export RESOURCE_GROUP=${ResourceGroup}
+export WORKSPACE_NAME=${WorkSpace}
+export SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+export CLUSTER_NAME="NDv4"
+```
+
+## Create Compute Cluster in AML
+```python
+import os
+from azure.ai.ml import MLClient
+from azure.identity import DefaultAzureCredential
+from azure.ai.ml.entities import IdentityConfiguration,AmlCompute,AmlComputeSshSettings
+from azure.ai.ml.constants import ManagedServiceIdentityType
+
+# Retrieve details from environment variables
+subscription_id = os.getenv('SUBSCRIPTION_ID')
+resource_group = os.getenv('RESOURCE_GROUP')
+work_space = os.getenv('WORKSPACE_NAME')
+cluster_name = os.getenv('CLUSTER_NAME')
+
+# get a handle to the workspace
+ml_client = MLClient(DefaultAzureCredential(), subscription_id, resource_group, work_space)
+
+# Create an identity configuration for a system-assigned managed identity
+identity_config = IdentityConfiguration(type = ManagedServiceIdentityType.SYSTEM_ASSIGNED)
+
+cluster_ssh = AmlComputeSshSettings(
+    admin_username="azureuser",
+    ssh_key_value="${PublicKey}",
+    admin_password="${PassWord}",)
+
+cluster_basic = AmlCompute(
+    name=cluster_name,
+    type="amlcompute",
+    size="Standard_ND96asr_v4",
+    ssh_public_access_enabled=True,
+    ssh_settings=cluster_ssh,
+    min_instances=0,
+    max_instances=2,
+    idle_time_before_scale_down=120,
+    identity=identity_config)
+
+operation = ml_client.begin_create_or_update(cluster_basic)
+result = operation.result()
+
+# Print useful information about the operation
+print(f"Cluster '{cluster_name}' has been created/updated.")
+print(f"Cluster information: {result}")
+```
+
+## Create AML Environment
+```python
+import os
+from azure.ai.ml import MLClient
+from azure.identity import DefaultAzureCredential
+from azure.ai.ml.entities import Environment
+
+# Retrieve details from environment variables
+subscription_id = os.getenv('SUBSCRIPTION_ID')
+resource_group = os.getenv('RESOURCE_GROUP')
+work_space = os.getenv('WORKSPACE_NAME')
+cluster_name = os.getenv('CLUSTER_NAME')
+
+# get a handle to the workspace
+ml_client = MLClient(DefaultAzureCredential(), subscription_id, resource_group, work_space)
+
+# Define Docker image for the custom environment
+env_name = "NCCL-Benchmark-Env"
+custom_env = Environment(
+    name=env_name,
+    image='jzacr3.azurecr.io/pytorch_nccl_tests_2303:latest',
+    version="1.0",
+)
+
+# Register the Environment
+registered_env = ml_client.environments.create_or_update(custom_env)
+
+# Print useful information about the environment
+print(f"Environment '{env_name}' has been created/updated.")
+print(f"Environment information: {registered_env}")
+```
+
+# NCCL AllReduce BW Test
+## Submit NCCL AllReduce Job
+```python
+import os
+from azure.identity import DefaultAzureCredential
+from azure.ai.ml import MLClient,command,MpiDistribution
+
+from azure.ai.ml.entities import (
+    SshJobService,
+    VsCodeJobService,
+    JupyterLabJobService,
+)
+
+# Retrieve details from environment variables
+subscription_id = os.getenv('SUBSCRIPTION_ID')
+resource_group = os.getenv('RESOURCE_GROUP')
+work_space = os.getenv('WORKSPACE_NAME')
+cluster_name = os.getenv('CLUSTER_NAME')
+
+# get a handle to the workspace
+ml_client = MLClient(
+    DefaultAzureCredential(), subscription_id, resource_group, work_space)
+
+job = command(
+    code="./src",  # local path where the code is stored
+    command="bash NCCL.sh",
+    compute=cluster_name,
+    environment="NCCL-Benchmark-Env:1.0",
+    instance_count=1,
+    distribution=MpiDistribution(
+        process_count_per_instance=8,
+    ),
+    services={
+        "My_jupyterlab": JupyterLabJobService(),
+    }
+)
+
+returned_job = ml_client.jobs.create_or_update(job)
+ml_client.jobs.stream(returned_job.name)
+```
+
+## NCCL AllReduce Result
+```bash
+#                                                              out-of-place                       in-place          
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)       
+           8             2     float     sum      -1    37.76    0.00    0.00      0    36.09    0.00    0.00      0
+          16             4     float     sum      -1    37.45    0.00    0.00      0    37.07    0.00    0.00      0
+          32             8     float     sum      -1    36.38    0.00    0.00      0    35.53    0.00    0.00      0
+          64            16     float     sum      -1    37.00    0.00    0.00      0    36.36    0.00    0.00      0
+         128            32     float     sum      -1    36.50    0.00    0.01      0    35.26    0.00    0.01      0
+         256            64     float     sum      -1    37.62    0.01    0.01      0    36.90    0.01    0.01      0
+         512           128     float     sum      -1    38.44    0.01    0.02      0    37.76    0.01    0.03      0
+        1024           256     float     sum      -1    40.18    0.03    0.05      0    39.85    0.03    0.05      0
+        2048           512     float     sum      -1    44.38    0.05    0.09      0    42.45    0.05    0.09      0
+        4096          1024     float     sum      -1    47.48    0.09    0.16      0    46.14    0.09    0.17      0
+        8192          2048     float     sum      -1    64.17    0.13    0.24      0    53.94    0.15    0.28      0
+       16384          4096     float     sum      -1    105.5    0.16    0.29      0    57.07    0.29    0.54      0
+       32768          8192     float     sum      -1    65.22    0.50    0.94      0    56.87    0.58    1.08      0
+       65536         16384     float     sum      -1    73.32    0.89    1.68      0    56.58    1.16    2.17      0
+      131072         32768     float     sum      -1    66.52    1.97    3.69      0    63.45    2.07    3.87      0
+      262144         65536     float     sum      -1    68.98    3.80    7.13      0    67.47    3.89    7.28      0
+      524288        131072     float     sum      -1    79.28    6.61   12.40      0    79.27    6.61   12.40      0
+     1048576        262144     float     sum      -1    96.57   10.86   20.36      0    96.62   10.85   20.35      0
+     2097152        524288     float     sum      -1    127.5   16.45   30.85      0    127.9   16.39   30.74      0
+     4194304       1048576     float     sum      -1    147.0   28.53   53.49      0    147.4   28.46   53.37      0
+     8388608       2097152     float     sum      -1    210.7   39.82   74.65      0    209.2   40.10   75.18      0
+    16777216       4194304     float     sum      -1    332.4   50.48   94.65      0    331.1   50.67   95.00      0
+    33554432       8388608     float     sum      -1    614.9   54.57  102.32      0    621.0   54.03  101.30      0
+    67108864      16777216     float     sum      -1    947.8   70.81  132.76      0    938.9   71.48  134.02      0
+   134217728      33554432     float     sum      -1   1682.8   79.76  149.55      0   1689.0   79.47  149.00      0
+   268435456      67108864     float     sum      -1   2975.4   90.22  169.16      0   3000.5   89.46  167.74      0
+   536870912     134217728     float     sum      -1   5744.6   93.46  175.23      0   5693.8   94.29  176.80      0
+  1073741824     268435456     float     sum      -1    11080   96.91  181.70      0    11095   96.78  181.46      0
+  2147483648     536870912     float     sum      -1    21872   98.19  184.10      0    21765   98.66  185.00      0
+  4294967296    1073741824     float     sum      -1    43176   99.48  186.52      0    43174   99.48  186.52      0
+  8589934592    2147483648     float     sum      -1    85820  100.09  187.67      0    85895  100.01  187.51      0
+f1d5e1df5ed649d0b9e618783ea5fdbc000000:1211:1211 [0] NCCL INFO comm 0x5634cae893b0 rank 0 nranks 16 cudaDev 0 busId 100000 - Destroy COMPLETE
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 57.1241 
+```
+
+# Distributed LAMMPS Job
