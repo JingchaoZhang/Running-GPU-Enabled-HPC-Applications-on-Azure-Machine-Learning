@@ -4,7 +4,11 @@ Azure Machine Learning (AML) is a cloud-based service primarily designed for mac
 We will start with building an A100 GPU-based compute cluster within the AML environment. ollowing the cluster creation, we will proceed to configure the AML Environments, tailoring them specifically for running two key applications: the NCCL (NVIDIA Collective Communications Library) AllReduce Benchmark and the Large-scale Atomic/Molecular Massively Parallel Simulator (LAMMPS). These applications will be executed across all 16 GPUs distributed over the two nodes. This exercise illustrats how to deploy and manage HPC applications using Azure Machine Learning. This approach is a departure from traditional methods typically reliant on SLURM for HPC resource management, highlighting AML's versatility and capability in handling complex HPC tasks.
 
 # Create AML Cluster and Custom Environments
+In this section, we will set up the AML infrastructure. The process involves creating an AML cluster and custom environments tailored for running HPC applications. This setup is crucial as it lays the foundational infrastructure and computational resources required for executing demanding tasks like the NCCL AllReduce Benchmark and LAMMPS simulations. 
+
 ## Create Resource Group
+We start by establishing a dedicated Resource Group and Workspace in Azure, followed by the construction of a Compute Cluster within AML. Finally, we create a specialized AML Environment, optimized for our specific HPC tasks. The first step in our setup involves creating a Resource Group and an AML Workspace. The Resource Group acts as a logical container for resources related to our project, ensuring organized management and easy tracking of Azure resources. Following this, we create an AML Workspace within this Resource Group. This Workspace serves as a central hub for all AML activities, including experiment management, data storage, and computational resource management. The code block demonstrates how to accomplish these tasks using Azure CLI commands, setting up the necessary infrastructure for our HPC applications.
+
 ```bash
 export RG=${ResourceGroup}
 export location=southcentralus
@@ -18,6 +22,8 @@ az ml workspace create --name $ws_name --resource-group $RG --location $location
 ```
 
 ## Create Compute Cluster in AML
+The first step in our setup involves creating a Resource Group and an AML Workspace. The Resource Group acts as a logical container for resources related to our project, ensuring organized management and easy tracking of Azure resources. Following this, we create an AML Workspace within this Resource Group. This Workspace serves as a central hub for all AML activities, including experiment management, data storage, and computational resource management. The code block demonstrates how to accomplish these tasks using Azure CLI commands, setting up the necessary infrastructure for our HPC applications.
+
 ```python
 import os
 from azure.ai.ml import MLClient
@@ -62,6 +68,8 @@ print(f"Cluster information: {result}")
 ```
 
 ## Create AML Environment
+This environment is designed to provide the necessary runtime context for our HPC applications, including the NCCL AllReduce Benchmark. The Python code in this section uses the Azure AI ML SDK to define and register a custom environment using a specific Docker image. This image is pre-configured with the required dependencies and frameworks, ensuring a consistent and optimized execution environment across all computations within the AML framework.
+
 ```python
 import os
 from azure.ai.ml import MLClient
