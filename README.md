@@ -67,7 +67,7 @@ print(f"Cluster '{cluster_name}' has been created/updated.")
 print(f"Cluster information: {result}")
 ```
 
-## Create AML Environment
+## Create Custom AML Environment
 This environment is designed to provide the necessary runtime context for our HPC applications, including the NCCL AllReduce Benchmark. The Python code in this section uses the Azure AI ML SDK to define and register a custom environment using a specific Docker image. This image is pre-configured with the required dependencies and frameworks, ensuring a consistent and optimized execution environment across all computations within the AML framework.
 
 ```python
