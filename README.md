@@ -9,19 +9,12 @@ We will start with building an A100 GPU-based compute cluster within the AML env
 export RG=${ResourceGroup}
 export location=southcentralus
 export ws_name=${WorkSpace}
+export SubID=$(az account show --query id -o tsv)
+export CLUSTER_NAME="NDv4"
 export acr_id="/subscriptions/${SubID}/resourceGroups/${ResourceGroup}/providers/Microsoft.ContainerRegistry/registries/${ACR}"
 
 az group create --name $RG --location $location
 az ml workspace create --name $ws_name --resource-group $RG --location $location --container-registry $acr_id
-```
-
-## Export Env Variables
-```bash
-# Set environment variables for Python script
-export RESOURCE_GROUP=${ResourceGroup}
-export WORKSPACE_NAME=${WorkSpace}
-export SUBSCRIPTION_ID=$(az account show --query id -o tsv)
-export CLUSTER_NAME="NDv4"
 ```
 
 ## Create Compute Cluster in AML
@@ -33,9 +26,9 @@ from azure.ai.ml.entities import IdentityConfiguration,AmlCompute,AmlComputeSshS
 from azure.ai.ml.constants import ManagedServiceIdentityType
 
 # Retrieve details from environment variables
-subscription_id = os.getenv('SUBSCRIPTION_ID')
-resource_group = os.getenv('RESOURCE_GROUP')
-work_space = os.getenv('WORKSPACE_NAME')
+subscription_id = os.getenv('SubID')
+resource_group = os.getenv('RG')
+work_space = os.getenv('ws_name')
 cluster_name = os.getenv('CLUSTER_NAME')
 
 # get a handle to the workspace
@@ -76,9 +69,9 @@ from azure.identity import DefaultAzureCredential
 from azure.ai.ml.entities import Environment
 
 # Retrieve details from environment variables
-subscription_id = os.getenv('SUBSCRIPTION_ID')
-resource_group = os.getenv('RESOURCE_GROUP')
-work_space = os.getenv('WORKSPACE_NAME')
+subscription_id = os.getenv('SubID')
+resource_group = os.getenv('RG')
+work_space = os.getenv('ws_name')
 cluster_name = os.getenv('CLUSTER_NAME')
 
 # get a handle to the workspace
