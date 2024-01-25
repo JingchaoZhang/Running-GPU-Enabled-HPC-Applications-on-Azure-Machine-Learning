@@ -147,7 +147,7 @@ ml_client.jobs.stream(returned_job.name)
 ```
 
 ## NCCL AllReduce Result
-After submitting the NCCL AllReduce test job, we obtain a series of results that provide insights into the bandwidth and communication performance of the GPUs. The output shown below has the optimal performance of around 188 GB/s between two `Standard_ND96asr_v4` nodes.
+After submitting the NCCL AllReduce test job, we obtain a series of results that provide insights into the bandwidth and communication performance of the GPUs. The output below shows the optimal performance of around 188 GB/s between two `Standard_ND96asr_v4` nodes.
 ```bash
 #                                                              out-of-place                       in-place          
 #       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
