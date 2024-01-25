@@ -6,7 +6,7 @@ We will start with building an A100 GPU-based compute cluster within the AML env
 # Create AML Cluster and Custom Environments
 In this section, we will set up the AML infrastructure. The process involves creating an AML cluster and custom environments tailored for running HPC applications. This setup is crucial as it lays the foundational infrastructure and computational resources required for executing demanding tasks like the NCCL AllReduce Benchmark and LAMMPS simulations. We start by establishing a dedicated Resource Group and Workspace in Azure, followed by the construction of a Compute Cluster within AML. Finally, we create a specialized AML Environment, optimized for our specific HPC tasks. 
 
-## Create Resource Group
+## Create Resource Group and AML WorkSpace
 The Resource Group acts as a logical container for resources related to our project, ensuring organized management and easy tracking of Azure resources. Following this, we create an AML Workspace within this Resource Group. This Workspace serves as a central hub for all AML activities, including experiment management, data storage, and computational resource management. The code block demonstrates how to accomplish these tasks using Azure CLI commands, setting up the necessary infrastructure for our HPC applications.
 
 ```bash
