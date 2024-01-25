@@ -115,9 +115,9 @@ from azure.ai.ml.entities import (
 )
 
 # Retrieve details from environment variables
-subscription_id = os.getenv('SUBSCRIPTION_ID')
-resource_group = os.getenv('RESOURCE_GROUP')
-work_space = os.getenv('WORKSPACE_NAME')
+subscription_id = os.getenv('SubID')
+resource_group = os.getenv('RG')
+work_space = os.getenv('ws_name')
 cluster_name = os.getenv('CLUSTER_NAME')
 
 # get a handle to the workspace
