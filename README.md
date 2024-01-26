@@ -133,7 +133,7 @@ job = command(
     command="bash NCCL.sh",
     compute=cluster_name,
     environment="NCCL-Benchmark-Env:1.0",
-    instance_count=1,
+    instance_count=2,
     distribution=MpiDistribution(
         process_count_per_instance=8,
     ),
