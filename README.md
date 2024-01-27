@@ -312,6 +312,7 @@ Total wall time: 0:00:14
 - The NCCL AllReduce Bandwidth Test and the distributed LAMMPS simulation illustrate AML's scalability and robust performance in distributed computing environments. The ability to efficiently parallel-process across multiple GPU nodes is a testament to AML's suitability for large-scale HPC applications.
 
 # References
+- [Running AutoDock HPC application on Azure Machine Learning platform](https://techcommunity.microsoft.com/t5/azure-high-performance-computing/running-autodock-hpc-application-on-azure-machine-learning/ba-p/4020180)
 - [AML Distributed GPU Training](https://azure.github.io/azureml-cheatsheets/docs/cheatsheets/python/v1/-distributed-training/#mpi)
 - [AML Manage environments with SDK and CLI (v2)](https://learn.microsoft.com/en-us/azure/machine-learning/-how-to-manage-environments-v2?view=azureml-api-2&tabs=cli)
 - [AML debug-and-monitor](https://github.com/Azure/azureml-examples/blob/-dd15e3f7d6a512fedfdfbdb4be19e065e8c1d224/sdk/python/jobs/single-step/debug-and-monitor/-debug-and-monitor.ipynb)
