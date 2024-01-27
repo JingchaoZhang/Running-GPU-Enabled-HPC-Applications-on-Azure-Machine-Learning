@@ -322,6 +322,6 @@ Total wall time: 0:00:14
 # References
 - [Running AutoDock HPC application on Azure Machine Learning platform](https://techcommunity.microsoft.com/t5/azure-high-performance-computing/running-autodock-hpc-application-on-azure-machine-learning/ba-p/4020180)
 - [AML Distributed GPU Training](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-train-distributed-gpu?view=azureml-api-2)
-- [AML Manage environments with SDK and CLI (v2)](https://learn.microsoft.com/en-us/azure/machine-learning/-how-to-manage-environments-v2?view=azureml-api-2&tabs=cli)
-- [AML debug-and-monitor](https://github.com/Azure/azureml-examples/blob/-dd15e3f7d6a512fedfdfbdb4be19e065e8c1d224/sdk/python/jobs/single-step/debug-and-monitor/-debug-and-monitor.ipynb)
-- [AML Compute Class](https://learn.microsoft.com/en-us/python/api/azure-ai-ml/azure.ai.ml.entities.-amlcompute?view=azure-python)
+- [AML Manage environments with SDK and CLI (v2)](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-manage-environments-v2?view=azureml-api-2&tabs=cli)
+- [AML debug-and-monitor](https://github.com/Azure/azureml-examples/blob/dd15e3f7d6a512fedfdfbdb4be19e065e8c1d224/sdk/python/jobs/single-step/debug-and-monitor/debug-and-monitor.ipynb)
+- [AML Compute Class](https://learn.microsoft.com/en-us/python/api/azure-ai-ml/azure.ai.ml.entities.amlcompute?view=azure-python)
