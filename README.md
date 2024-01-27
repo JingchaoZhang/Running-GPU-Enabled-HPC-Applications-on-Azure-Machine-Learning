@@ -6,8 +6,8 @@ We will start with building an A100 GPU-based compute cluster within the AML env
 # Parallel Backends in AML
 Azure Machine Learning supports various parallel backends for distributed GPU training, each with its specific applications. The main frameworks are listed below:
 - **Message Passing Interface**: The `MpiDistribution` method is used for distributed training with MPI. It requires a base Docker image with an MPI library, with OpenMPI included in all AML GPU base images.
-- **PyTorch**: AML supports PyTorch's native distributed training capabilities (torch.distributed) using the nccl backend for GPU-based training. AML sets the necessary environment variables for process group initialization and does not require a separate launcher utility like torch.distributed.launch.
-- **TensorFlow**: For native distributed TensorFlow, such as TensorFlow 2.x's tf.distribute.Strategy API, Azure ML supports launching distributed jobs using the distribution parameters or TensorFlowDistribution object. AML automatically configures the TF_CONFIG environment variable for distributed TensorFlow jobs.
+- **PyTorch**: AML supports PyTorch's native distributed training capabilities (`torch.distributed`) using the nccl backend for GPU-based training. AML sets the necessary environment variables for process group initialization and does not require a separate launcher utility like torch.distributed.launch.
+- **TensorFlow**: For native distributed TensorFlow, such as TensorFlow 2.x's tf.distribute.Strategy API, AML supports launching distributed jobs using the distribution parameters or `TensorFlowDistribution` object. AML automatically configures the `TF_CONFIG` environment variable for distributed TensorFlow jobs.
 
 For High-Performance Computing (HPC) applications, we employed the `MpiDistribution` method, which is particularly effective for tasks requiring high inter-node communication efficiency. Note that at the moment of this blog, AML constructs the full MPI launch command behind the scenes. You can't provide your own full head-node-launcher commands like `mpirun`.
 
