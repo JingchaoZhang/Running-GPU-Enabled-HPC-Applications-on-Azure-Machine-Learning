@@ -3,6 +3,8 @@ Azure Machine Learning (AML) is a cloud-based service primarily designed for mac
 
 We will start with building an A100 GPU-based compute cluster within the AML environment. Following the cluster creation, we will proceed to configure the AML Environments, tailoring them specifically for running two key applications: the NCCL (NVIDIA Collective Communications Library) AllReduce Benchmark and the Large-scale Atomic/Molecular Massively Parallel Simulator (LAMMPS). These applications will be executed across all 16 GPUs distributed over the two nodes. This exercise illustrats how to deploy and manage HPC applications using Azure Machine Learning. This approach is a departure from traditional methods typically reliant on SLURM for HPC resource management, highlighting AML's versatility and capability in handling complex HPC tasks.
 
+Scripts used in this blog can be found in this [GitHub repo](https://github.com/JingchaoZhang/Running-GPU-Enabled-HPC-Applications-on-Azure-Machine-Learning/tree/main).
+
 # Parallel Backends in AML
 Azure Machine Learning supports various parallel backends for distributed GPU training, each with its specific applications. The main frameworks are listed below:
 - **Message Passing Interface**: The `MpiDistribution` method is used for distributed training with MPI. It requires a base Docker image with an MPI library, with OpenMPI included in all AML GPU base images.
