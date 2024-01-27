@@ -306,7 +306,7 @@ Total wall time: 0:00:14
 ```
 
 # Conclusion
-- We achieved optimal NCCL AllReduce IB performance reaching up to 188 GB/s on two `Standard_ND96asr_v4` nodes, which is pivotal for running tightly-coupled cross-node GPU applications on AML.
+- On an AML compute cluster with two `Standard_ND96asr_v4` nodes, we achieved optimal NCCL AllReduce IB performance reaching up to 188 GB/s, which is pivotal for running tightly-coupled cross-node GPU applications on AML.
 - AML's capability extends beyond machine learning applications. It proves to be a powerful platform for GPU enabled HPC tasks, as evidenced by NCCL AllReduce Benchmark and LAMMPS.
 - The creation of custom AML environments, tailored to specific HPC applications, showcases the flexibility of Azure ML in providing optimized runtime contexts.
 - The NCCL AllReduce Bandwidth Test and the distributed LAMMPS simulation illustrate AML's scalability and robust performance in distributed computing environments. The ability to efficiently parallel-process across multiple GPU nodes is a testament to AML's suitability for large-scale HPC applications.
