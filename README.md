@@ -95,14 +95,14 @@ ml_client = MLClient(DefaultAzureCredential(), subscription_id, resource_group, 
 
 # Define Docker image for the NCCL custom environment
 env_name = "NCCL-Benchmark-Env"
-custom_env = Environment(
+NCCL_env = Environment(
     name=env_name,
     image='jzacr3.azurecr.io/pytorch_nccl_tests_2303:latest',
     version="1.0",
 )
 
 # Register the Environment
-registered_env = ml_client.environments.create_or_update(custom_env)
+registered_env = ml_client.environments.create_or_update(NCCL_env)
 
 # Print useful information about the environment
 print(f"Environment '{env_name}' has been created/updated.")
@@ -110,7 +110,7 @@ print(f"Environment information: {registered_env}")
 
 # Define Docker image for LAMMPS custom environment
 env_name = "LAMMPS-Benchmark-Env"
-custom_env = Environment(
+LAMMPS_env = Environment(
     name=env_name,
     #image='nvcr.io/hpc/lammps:patch_15Jun2023',
     image='jzacr3.azurecr.io/nvhpc_lammps:latest',
@@ -118,7 +118,7 @@ custom_env = Environment(
 )
 
 # Register the Environment
-registered_env = ml_client.environments.create_or_update(custom_env)
+registered_env = ml_client.environments.create_or_update(LAMMPS_env)
 
 # Print useful information about the environment
 print(f"Environment '{env_name}' has been created/updated.")
