@@ -189,3 +189,118 @@ f1d5e1df5ed649d0b9e618783ea5fdbc000000:1211:1211 [0] NCCL INFO comm 0x5634cae893
 ```
 
 # Distributed LAMMPS Job
+LAMMPS is a widely used molecular dynamics simulation software, and running it in a distributed manner across multiple GPU nodes demonstrates the capability of Azure ML to handle complex, computationally intensive HPC tasks. This distributed approach is particularly beneficial for simulations requiring extensive computational resources, as it allows for parallel processing across multiple GPUs, thereby significantly enhancing performance and reducing runtime.
+
+## Submit GPU Compiled LAMMPS on Two Nodes
+The job configuration includes the path to the LAMMPS executable script (run_lammps.sh), the compute target, and the custom environment specifically set up for LAMMPS. Additionally, the job is configured to run on two nodes, each utilizing 8 MPI processes, to leverage the distributed computing capabilities. The script also specifies shared memory size and includes services for JupyterLab and SSH, enabling interactive analysis and remote access to the running job for monitoring and debugging purposes.
+
+```bash
+import os
+from azure.identity import DefaultAzureCredential
+from azure.ai.ml import MLClient,command,MpiDistribution
+from azure.ai.ml.entities import JupyterLabJobService, SshJobService
+
+# Retrieve details from environment variables
+subscription_id = os.getenv('SUBSCRIPTION_ID')
+resource_group = os.getenv('RESOURCE_GROUP')
+work_space = os.getenv('WORKSPACE_NAME')
+cluster_name = os.getenv('CLUSTER_NAME')
+
+# get a handle to the workspace
+ml_client = MLClient(
+    DefaultAzureCredential(), subscription_id, resource_group, work_space)
+
+job = command(
+    code="./src",  # local path where the code is stored
+    command="bash run_lammps.sh",
+    compute=cluster_name,
+    environment="LAMMPS-Benchmark-Env:2.0",
+    instance_count=2,
+    shm_size="2g",
+    distribution=MpiDistribution(
+        process_count_per_instance=8,
+    ),
+    services={
+        "My_jupyterlab": JupyterLabJobService(),
+        "My_ssh": SshJobService(
+                ssh_public_keys="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCq5muNaAXzQa3WJXPKlQwVwRfcTsjNQEqbIecX/XxwBRXADue8N9gRXTLlXvN6UbxxI1G5b4YHz8AJJ0Exu3efpXM7Fk7siRc/w3j83gqF9wlFDb1zUWa7tuedLUwhynGXrZKGAao64FGChu7DQr4VTJEiRM3vlNGO+kGeorQ0H6ptvhn9Pn6dr6LijRIpcjKN57IrUdLx31NygZQsNBWhjVjoOe9WsP8INujZWUxA0yUJqTlimnBw+VKiIVcc2HYVNEX8bmAYMmXAYN70/iZZUjL5lWieUTtJIRLDbl6S8K7f1FotXqRRCD7JFBgnJmxQ25WCmZLZU4Tjiyb17vFHe3e2AknzHAKah5JoRx79+7sjf1gpv9SnprbYdygwLErq1pd7T+T/l4q6pbQx0C3xS00O47+dTc7YqKXyL7piiihXmFo9W0BYehjSCNEb2lSJxQoyfHjt9AiNGWhhJgmTQ4xrsvK5Ga7MV87W4ZYbfeR/NAeRMXoViKGW5FVPx88= jingchao@ms_laptop",
+                nodes="all"),
+    }
+)
+
+returned_job = ml_client.jobs.create_or_update(job)
+ml_client.jobs.stream(returned_job.name)
+```
+
+The output concludes with a summary of the computational performance, including the total wall time and a breakdown of the time spent in various sections of the code.
+## LAMMPS Output
+```bash
+LAMMPS (2 Aug 2023 - Update 2)
+KOKKOS mode with Kokkos version 3.7.2 is enabled (../kokkos.cpp:108)
+  will use up to 8 GPU(s) per node
+Lattice spacing in x,y,z = 1.6795962 1.6795962 1.6795962
+Created orthogonal box = (0 0 0) to (537.47078 134.3677 268.73539)
+  4 by 1 by 4 MPI processor grid
+Created 16384000 atoms
+  using lattice units in orthogonal box = (0 0 0) to (537.47078 134.3677 268.73539)
+  create_atoms CPU = 0.140 seconds
+Generated 0 of 0 mixed pair_coeff terms from geometric mixing rule
+Neighbor list info ...
+  update: every = 20 steps, delay = 0 steps, check = no
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 2.8
+  ghost atom cutoff = 2.8
+  binsize = 2.8, bins = 192 48 96
+  1 neighbor lists, perpetual/occasional/extra = 1 0 0
+  (1) pair lj/cut/kk, perpetual
+      attributes: full, newton off, kokkos_device
+      pair build: full/bin/kk/device
+      stencil: full/bin/3d
+      bin: kk/device
+Setting up Verlet run ...
+  Unit style    : lj
+  Current step  : 0
+  Time step     : 0.005
+Per MPI rank memory allocation (min/avg/max) = 155.7 | 157.1 | 158 Mbytes
+   Step          Temp          E_pair         E_mol          TotEng         Press     
+         0   1.44          -6.7733681      0             -4.6133682     -5.0196693    
+       100   0.75944938    -5.7614943      0             -4.6223203      0.18979435   
+       200   0.75691889    -5.7579983      0             -4.6226201      0.22453779   
+       300   0.74862879    -5.7454254      0             -4.6224823      0.30320043   
+       400   0.73952934    -5.7315134      0             -4.6222195      0.38830386   
+       500   0.73109398    -5.7185411      0             -4.6219002      0.46601068   
+       600   0.72319764    -5.7063472      0             -4.6215508      0.53734812   
+       700   0.71627778    -5.6956228      0             -4.6212062      0.59840289   
+       800   0.71088121    -5.6872216      0             -4.6208999      0.64548402   
+       900   0.70681548    -5.680866       0             -4.6206428      0.67980724   
+      1000   0.7037414     -5.6760744      0             -4.6204623      0.70559832   
+Loop time of 11.1074 on 16 procs for 1000 steps with 16384000 atoms
+
+Performance: 38892.844 tau/day, 90.030 timesteps/s, 1.475 Gatom-step/s
+47.9% CPU use with 16 MPI tasks x 1 OpenMP threads
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 0.046821   | 0.049583   | 0.051841   |   0.5 |  0.45
+Neigh   | 0.24714    | 0.2909     | 0.32389    |   3.8 |  2.62
+Comm    | 8.6846     | 8.7882     | 9.0226     |   2.6 | 79.12
+Output  | 0.02551    | 0.236      | 0.45515    |  29.1 |  2.12
+Modify  | 1.1376     | 1.3388     | 1.4242     |   5.6 | 12.05
+Other   |            | 0.4039     |            |       |  3.64
+
+Nlocal:      1.024e+06 ave 1.02447e+06 max 1.02358e+06 min
+Histogram: 1 1 1 3 2 4 2 1 0 1
+Nghost:         180593 ave      180826 max      180297 min
+Histogram: 1 0 0 1 4 3 4 2 0 1
+Neighs:              0 ave           0 max           0 min
+Histogram: 16 0 0 0 0 0 0 0 0 0
+FullNghs:  7.67727e+07 ave 7.68284e+07 max 7.67214e+07 min
+Histogram: 2 0 1 1 4 3 3 1 0 1
+
+Total # of neighbors = 1.2283633e+09
+Ave neighs/atom = 74.973344
+Neighbor list builds = 50
+Dangerous builds not checked
+Total wall time: 0:00:14
+```
