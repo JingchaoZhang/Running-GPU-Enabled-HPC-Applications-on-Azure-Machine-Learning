@@ -3,6 +3,16 @@ Azure Machine Learning (AML) is a cloud-based service primarily designed for mac
 
 We will start with building an A100 GPU-based compute cluster within the AML environment. ollowing the cluster creation, we will proceed to configure the AML Environments, tailoring them specifically for running two key applications: the NCCL (NVIDIA Collective Communications Library) AllReduce Benchmark and the Large-scale Atomic/Molecular Massively Parallel Simulator (LAMMPS). These applications will be executed across all 16 GPUs distributed over the two nodes. This exercise illustrats how to deploy and manage HPC applications using Azure Machine Learning. This approach is a departure from traditional methods typically reliant on SLURM for HPC resource management, highlighting AML's versatility and capability in handling complex HPC tasks.
 
+# Parallel Backends in AML
+In Azure Machine Learning (AML), different parallel backend methods are available for distributed GPU training, each suitable for specific frameworks and scenarios. 
+
+The main frameworks are listed below:
+- **Message Passing Interface**: MPI is the backbone for distributed training in AML. It allows the launching of a specified number of processes on each node. The `MpiDistribution` method is used for distributed training with MPI, which constructs the full MPI launch command (mpirun) behind the scenes. It requires a base Docker image with an MPI library, with Open MPI included in all Azure Machine Learning GPU base images.
+- **PyTorch**: AML supports PyTorch's native distributed training capabilities (torch.distributed) using the nccl backend for GPU-based training. AML sets the necessary environment variables for process group initialization and does not require a separate launcher utility like torch.distributed.launch.
+- **TensorFlow**: For native distributed TensorFlow, such as TensorFlow 2.x's tf.distribute.Strategy API, Azure ML supports launching distributed jobs using the distribution parameters or TensorFlowDistribution object. AML automatically configures the TF_CONFIG environment variable for distributed TensorFlow jobs.
+
+For High-Performance Computing (HPC) applications, we employed the MpiDistribution method, which is particularly effective for tasks requiring high inter-node communication efficiency. Note that AML constructs the full MPI launch command behind the scenes. You can't provide your own full head-node-launcher commands like `mpirun`.
+
 # Create AML Cluster and Custom Environments
 In this section, we will set up the AML infrastructure. The process involves creating an AML cluster and custom environments tailored for running HPC applications. This setup is crucial as it lays the foundational infrastructure and computational resources required for executing demanding tasks like the NCCL AllReduce Benchmark and LAMMPS simulations. We start by establishing a dedicated Resource Group and Workspace in Azure, followed by the construction of a Compute Cluster within AML. Finally, we create a specialized AML Environment, optimized for our specific HPC tasks. 
 
