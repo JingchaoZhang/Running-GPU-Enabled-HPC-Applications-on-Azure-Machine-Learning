@@ -191,7 +191,7 @@ f1d5e1df5ed649d0b9e618783ea5fdbc000000:1211:1211 [0] NCCL INFO comm 0x5634cae893
 # Distributed LAMMPS Job
 LAMMPS is a widely used molecular dynamics simulation software, and running it in a distributed manner across multiple GPU nodes demonstrates the capability of Azure ML to handle complex, computationally intensive HPC tasks. This distributed approach is particularly beneficial for simulations requiring extensive computational resources, as it allows for parallel processing across multiple GPUs, thereby significantly enhancing performance and reducing runtime.
 
-## Submit GPU Compiled LAMMPS on Two Nodes
+## Submit GPU Enabled LAMMPS on Two `Standard_ND96asr_v4` Nodes
 The job configuration includes the path to the LAMMPS executable script (run_lammps.sh), the compute target, and the custom environment specifically set up for LAMMPS. Additionally, the job is configured to run on two nodes, each utilizing 8 MPI processes, to leverage the distributed computing capabilities. The script also specifies shared memory size and includes services for JupyterLab and SSH, enabling interactive analysis and remote access to the running job for monitoring and debugging purposes.
 
 ```bash
