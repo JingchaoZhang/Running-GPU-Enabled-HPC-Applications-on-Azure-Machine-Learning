@@ -304,3 +304,15 @@ Neighbor list builds = 50
 Dangerous builds not checked
 Total wall time: 0:00:14
 ```
+
+# Conclusion
+- AML's capability extends beyond machine learning applications. It proves to be a powerful platform for GPU enabled HPC tasks, as evidenced by the successful deployment and execution of complex applications like NCCL AllReduce Benchmark and LAMMPS.
+- The creation of custom AML environments, tailored to specific HPC applications, showcases the flexibility of Azure ML in providing optimized runtime contexts. This is crucial for ensuring consistent performance across various computational tasks.
+- The NCCL AllReduce Bandwidth Test and the distributed LAMMPS simulation illustrate AML's scalability and robust performance in distributed computing environments. The ability to efficiently parallel-process across multiple GPU nodes is a testament to AML's suitability for large-scale HPC applications.
+- Azure ML offers an innovative and viable alternative to traditional HPC resource management methods. Its integration of cloud-based services with high-performance computing capabilities marks a significant advancement in the field of computational science.
+
+# References
+- [AML Distributed GPU Training](https://azure.github.io/azureml-cheatsheets/docs/cheatsheets/python/v1/-distributed-training/#mpi)
+- [AML Manage environments with SDK and CLI (v2)](https://learn.microsoft.com/en-us/azure/machine-learning/-how-to-manage-environments-v2?view=azureml-api-2&tabs=cli)
+- [AML debug-and-monitor](https://github.com/Azure/azureml-examples/blob/-dd15e3f7d6a512fedfdfbdb4be19e065e8c1d224/sdk/python/jobs/single-step/debug-and-monitor/-debug-and-monitor.ipynb)
+- [AML Compute Class](https://learn.microsoft.com/en-us/python/api/azure-ai-ml/azure.ai.ml.entities.-amlcompute?view=azure-python)
