@@ -233,7 +233,7 @@ job = command(
     services={
         "My_jupyterlab": JupyterLabJobService(),
         "My_ssh": SshJobService(
-                ssh_public_keys=${PubKey},
+                ssh_public_keys=${PublicKey},
                 nodes="all"),
     }
 )
